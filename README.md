@@ -29,5 +29,5 @@ The system consists of two primary workflows operating in tandem:
 
 *(Screenshots of the modular workflows)*
 
-![Booking Agent Architecture](./agent_screenshot.png)
+![Booking Agent Architecture](./agent-screenshot.png)
 ![Automated Reminder Architecture](./reminder_screenshot.png)
