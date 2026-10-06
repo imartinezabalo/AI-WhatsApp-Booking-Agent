@@ -1,0 +1,183 @@
+{
+  "name": "Recordatorio Citas",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "83b24fab-1b48-47ba-bcb2-898f62719a23",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "e9fe1a0781ebb3bbef64bd472076dc029328db2d1988936f59ce35558c320aa6@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Pau Nails & Beauty"
+        },
+        "returnAll": true,
+        "timeMin": "={{ $now.plus({days: 1}).startOf('day').toISO() }}",
+        "timeMax": "={{ $now.plus({days: 1}).endOf('day').toISO() }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        0
+      ],
+      "id": "bd8209ba-4941-4ace-a5de-c7ed13271ae1",
+      "name": "Get many events",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pnizvq6aEjo3Rjv1",
+          "name": "Google Calendar account -  iago.martinez.abalo"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5ac14ba0-8ced-4e08-8d03-35eea24c9eb5",
+              "name": "telefono",
+              "value": "={{ $json.description.split('Contacto: ')[1] }}",
+              "type": "string"
+            },
+            {
+              "id": "d2b56924-5fad-4bca-97dd-08d55f8a5d61",
+              "name": "nombre_cliente",
+              "value": "={{ $json.description.split('Cliente: ')[1].split(' - ')[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "9e6e5fa2-8442-479d-81ff-93197761f6b7",
+              "name": "servicio",
+              "value": "={{ $json.summary }}",
+              "type": "string"
+            },
+            {
+              "id": "dbcb08ab-fa84-4b09-b371-d40b93dc4b28",
+              "name": "hora",
+              "value": "={{ $json.start.dateTime.split('T')[1].substring(0,5) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        448,
+        0
+      ],
+      "id": "7850ee29-5b84-4e98-9e3d-e3a6e8fa20e6",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://waapi.app/api/v1/instances/101786/client/action/send-message",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chatId\": \"{{ $json.telefono }}@c.us\",\n  \"message\": \"Hola {{ $json.nombre_cliente }}! Te recordamos tu cita de {{ $json.servicio }} mañana a las {{ $json.hora }} en Pau Nails & Beauty. Si necesitas cambiarla, escríbenos por aquí. Te esperamos!\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        672,
+        0
+      ],
+      "id": "c4d3d698-4340-4317-9a97-738fcd67a00c",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "06ZxtMIHjXaM328j",
+          "name": "Header Auth account - WaAPI"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many events": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f5c20a0d-27be-44ec-8245-52001f2a312f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e0c5a9afc2d357cc419e092b53be61c03737367c20920c0a2604bb99207908c6"
+  },
+  "nodeGroups": [],
+  "id": "BYJbP4DRvgEPVJ4x",
+  "tags": []
+}
